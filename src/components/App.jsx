@@ -7,12 +7,13 @@ import ToyContainer from "./ToyContainer";
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [toys, setToys] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:3001/toys")
       .then((response) => response.json())
       .then((data) => setToys(data));
+
   }, []); // this will run only once when the page opens
+
 
   function handleClick() {
     setShowForm((showForm) => !showForm);
@@ -27,9 +28,8 @@ function App() {
       body: JSON.stringify(newToy),
     })
       .then((response) => response.json())
-      .then((createdToy) => {
-        setToys((currentToys) => [...currentToys, createdToy]);
-        setShowForm(false);
+      .then((newToyFromServer) => {
+        setToys((toys) => [...toys, newToyFromServer]);
       });
   }
 
@@ -37,28 +37,24 @@ function App() {
     fetch(`http://localhost:3001/toys/${Id}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        likes: toys.find((toy) => toy.id === Id).likes + 1,
-      }),
+      body: JSON.stringify({ likes: toys.find(toy => toy.id === Id).likes + 1 })
     })
       .then((response) => response.json())
       .then((updatedToy) => {
-        setToys((currentToys) =>
-          currentToys.map((toy) => (toy.id === Id ? updatedToy : toy))
-        );
+        setToys(toys.map((toy) => (toy.id === Id ? updatedToy : toy)));
       });
   }
 
   function handleDelete(Id) {
     fetch(`http://localhost:3001/toys/${Id}`, {
-      method: "DELETE",
-    }).then(() => {
-      setToys((currentToys) => currentToys.filter((toy) => toy.id !== Id));
-    });
+      method: "DELETE"
+    })
+      .then(() => {
+        setToys(toys.filter((toy) => toy.id !== Id));
+      });
   }
-
   return (
     <>
       <Header />
